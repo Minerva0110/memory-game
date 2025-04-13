@@ -1,0 +1,41 @@
+:root {
+  --background: #000000;
+  --foreground: #0ff0fc;
+  --accent: #00ffee;
+  --text-muted: #aaa;
+  --tile-shadow: 0 0 10px #0ff0fc44;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+  width: 100%;
+  overflow-x: hidden;
+  background: var(--background);
+  color: var(--foreground);
+  font-family: 'Orbitron', Arial, Helvetica, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+:focus:not(:focus-visible) {
+  outline: none;
+}

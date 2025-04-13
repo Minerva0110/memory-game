@@ -146,9 +146,11 @@ export default function GamePage() {
         </button>
       </nav>
 
-      {mode === 'keppni' && (
-        <p className="mode-info">Þessi mód verður skráð í stigatöflu – tími til að einbeita sér!</p>
-      )}
+      {mode === 'keppni' && !timerActive && (
+    <p className="mode-info">
+      Viltu keppa? Þetta verður skráð í stigatöflu – tími til að einbeita sér!
+    </p>
+  )}
 
       <div className="game-container">
       <div className="hud">
@@ -207,7 +209,7 @@ export default function GamePage() {
     ))}
   </ul>
 ) : (
-  <p>Engin stig skráð enn — vertu(ðu) fyrst(ur) á listanum! 🎯</p>
+  <p>Engin stig skráð — vertu fyrstur á listanum! </p>
 )}
 
       <button onClick={() => setShowLeaderboard(false)}>Loka</button>

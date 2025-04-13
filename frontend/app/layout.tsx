@@ -1,3 +1,10 @@
+import './globals.scss'
+
+export const metadata = {
+  title: 'Memory Game',
+  description: 'Sci-fi memory matching fun!',
+}
+
 export default function RootLayout({
   children,
 }: {
@@ -5,7 +12,6 @@ export default function RootLayout({
 }) {
   return (
     <html lang="is">
-      <head />
       <body>{children}</body>
     </html>
   )
