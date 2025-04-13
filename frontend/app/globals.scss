@@ -1,5 +1,5 @@
 :root {
-  --background: #000000;
+  --background: #000;
   --foreground: #0ff0fc;
   --accent: #00ffee;
   --text-muted: #aaa;
@@ -39,3 +39,37 @@ a {
 :focus:not(:focus-visible) {
   outline: none;
 }
+.watermark {
+  position: fixed;
+  bottom: 16px;
+  right: 20px;
+  font-size: 1rem; 
+  font-weight: 600;
+  color: #0ff0fc;
+  opacity: 0.7;
+  font-family: 'Orbitron', sans-serif;
+  z-index: 9999;
+  pointer-events: none;
+  padding: 0.3rem 0.7rem;
+  text-shadow: 0 0 8px #0ff0fc88;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(3px);
+
+  animation: glowPulse 3s ease-in-out infinite;
+}
+
+@keyframes glowPulse {
+  0% {
+    opacity: 0.6;
+    text-shadow: 0 0 6px #0ff;
+  }
+  50% {
+    opacity: 0.9;
+    text-shadow: 0 0 12px #0ff;
+  }
+  100% {
+    opacity: 0.6;
+    text-shadow: 0 0 6px #0ff;
+  }
+}
+

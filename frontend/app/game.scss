@@ -1,16 +1,50 @@
-/* ───────────────────────────────
-   GLOBAL STYLES
-─────────────────────────────── */
+.star-background {
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(ellipse at center, #0a0a0a 0%, #000 100%);
+  overflow: hidden;
+  z-index: 0;
+  pointer-events: none;
+
+  .star {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    border-radius: 50%;
+    background-color: white;
+    opacity: 0.6;
+    animation: floatStar 100s linear infinite;
+  }
+}
+
+@keyframes floatStar {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-200px);
+  }
+}
+
+@for $i from 1 through 250 {
+  .star:nth-child(#{$i}) {
+    top: #{random(100)}vh;
+    left: #{random(100)}vw;
+    background-color: #{nth(('white', '#0ff', '#88f', '#c0f'), random(4))};
+    opacity: #{random(40) / 100 + 0.3};
+    animation-delay: #{random(100)}s;
+    transform: scale(#{random(150) / 100});
+  }
+}
+
 body {
   background-color: #000;
   margin: 0;
   padding: 0;
   font-family: 'Orbitron', sans-serif;
+  height: 100vh;
 }
 
-/* ───────────────────────────────
-   NAVIGATION & MODE SELECT
-─────────────────────────────── */
 .mode-select {
   position: fixed;
   top: 0;
@@ -21,12 +55,13 @@ body {
   display: flex;
   justify-content: center;
   gap: 1rem;
-  z-index: 1000;
+  z-index: 1100;
   box-shadow: 0 2px 10px #0ff0fc33;
 
   button {
     padding: 0.5rem 1.2rem;
     background: transparent;
+    position: relative;
     border: 2px solid #0ff0fc;
     color: #0ff0fc;
     font-size: 1rem;
@@ -46,51 +81,136 @@ body {
   }
 }
 
-.mode-info {
-  margin-top: 5rem;
-  text-align: center;
-  color: #0ff0fc;
-  font-size: 1.1rem;
-  text-shadow: 0 0 6px #0ff0fc88;
-  animation: fadeIn 0.3s ease-in;
+.leaderboard-button {
+  position: relative;
+  z-index: 2000;
+  pointer-events: auto;
 }
 
-/* ───────────────────────────────
-   GAME CONTAINER & HUD
-─────────────────────────────── */
-.game-container {
-  min-height: 100vh;
-  padding-top: 6rem;
+.leaderboard-popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 3000;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.85);
   display: flex;
-  flex-direction: column;
+  justify-content: center;
   align-items: center;
-  justify-content: flex-start;
+  pointer-events: auto;
 
-  @media (min-height: 700px) {
-    justify-content: center;
+  .leaderboard-content {
+    background: #000;
+    border: 2px solid #0ff0fc;
+    box-shadow: 0 0 20px #0ff0fc99;
+    padding: 2rem;
+    border-radius: 12px;
+    text-align: center;
+    max-width: 90%;
+    width: 400px;
+    color: #0ff0fc;
+    font-family: 'Orbitron', sans-serif;
+
+    h2 {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+      text-shadow: 0 0 8px #0ff;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+      margin-bottom: 1rem;
+
+      li {
+        margin: 0.5rem 0;
+        font-size: 1.1rem;
+        background: #001b2d;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        box-shadow: 0 0 6px #0ff0fc44;
+      }
+    }
+
+    button {
+      background: #0ff0fc;
+      color: #000;
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 1rem;
+      box-shadow: 0 0 12px #0ff0fc88;
+
+      &:hover {
+        background-color: #00e0ff;
+        box-shadow: 0 0 20px #0ff;
+      }
+    }
   }
 }
 
+
+.mode-info {
+  height: 2.5rem;
+  position: absolute;
+  top: 5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(0, 0, 0, 0.8);
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  color: #0ff0fc;
+  font-size: 1.1rem;
+  text-shadow: 0 0 6px #0ff0fc88;
+  z-index: 900;
+  max-width: 90%;
+  text-align: center;
+}
+
+
+.game-container {
+  min-height: 100vh;
+  padding-top: 7rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
 .hud {
-  margin-top: 1rem;
   text-align: center;
   font-size: 1.2rem;
   color: #0ff;
+  text-shadow: 0 0 8px #0ff0fc88;
   margin-bottom: 1rem;
+  z-index: 1;
 }
 
-/* ───────────────────────────────
-   GAME BOARD & TILES
-─────────────────────────────── */
 .board {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: 18px;
+  grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)); 
+  gap: 16px;
+  width: 100%;
   max-width: 720px;
   margin: 0 auto;
   padding: 2rem 1rem;
   justify-items: center;
+
+  @media (max-width: 500px) {
+    grid-template-columns: repeat(3, 1fr); 
+  }
+
+  @media (min-width: 501px) and (max-width: 800px) {
+    grid-template-columns: repeat(4, 1fr); 
+  }
+
+  @media (min-width: 801px) {
+    grid-template-columns: repeat(6, 1fr);
+  }
 }
+
 
 .tile {
   width: 120px;
@@ -151,23 +271,22 @@ body {
   }
 }
 
-/* ───────────────────────────────
-   WIN MESSAGE OVERLAY
-─────────────────────────────── */
 .win-message {
   position: fixed;
   top: 0;
   left: 0;
+  z-index: 2500;
   width: 100%;
   height: 100%;
   background: rgba(0, 0, 0, 0.9);
-  color: #0ff0fc;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   font-family: 'Orbitron', sans-serif;
-  z-index: 999;
+  color: #0ff0fc;
+  padding: 2rem;
+  text-align: center;
 
   h2 {
     font-size: 3rem;
@@ -178,135 +297,54 @@ body {
   p {
     font-size: 1.4rem;
     margin-bottom: 1.5rem;
+    color: #ccc;
+    text-shadow: 0 0 6px #0ff0fc66;
+  }
+
+  input {
+    padding: 0.6rem 1rem;
+    font-size: 1rem;
+    border-radius: 6px;
+    border: 2px solid #0ff0fc;
+    background: #000;
+    color: #0ff0fc;
+    margin-bottom: 1rem;
+    text-align: center;
+    box-shadow: 0 0 10px #0ff0fc33;
+
+    &:focus {
+      outline: none;
+      box-shadow: 0 0 12px #0ff;
+    }
   }
 
   button {
-    padding: 0.75rem 1.5rem;
     background-color: #0ff0fc;
     color: #000;
-    font-size: 1.2rem;
+    font-size: 1.1rem;
+    padding: 0.6rem 1.4rem;
     border: none;
     border-radius: 8px;
     cursor: pointer;
-    box-shadow: 0 0 12px #0ff0fc88;
-
-    &:hover {
-      background-color: #0df;
-      box-shadow: 0 0 20px #0ff;
-    }
-  }
-}
-
-/* ───────────────────────────────
-   LEADERBOARD MODALS
-─────────────────────────────── */
-.leaderboard-modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 5, 15, 0.95);
-  color: #0ff0fc;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  font-family: 'Orbitron', sans-serif;
-  text-align: center;
-  padding: 2rem;
-
-  h2 {
-    font-size: 2rem;
-    margin-bottom: 1rem;
-    text-shadow: 0 0 12px #0ff;
-  }
-
-  ul {
-    list-style: none;
-    padding: 0;
-    max-height: 300px;
-    overflow-y: auto;
-    margin-bottom: 1rem;
-
-    li {
-      font-size: 1.1rem;
-      margin: 0.4rem 0;
-      background: #001b2d;
-      padding: 0.5rem 1rem;
-      border-radius: 8px;
-      box-shadow: 0 0 8px #0ff0fc44;
-    }
-  }
-
-  button {
-    background-color: #0ff0fc;
-    color: #000;
-    padding: 0.5rem 1rem;
-    font-size: 1rem;
-    border-radius: 6px;
-    border: none;
-    cursor: pointer;
-    box-shadow: 0 0 10px #0ff;
+    margin: 0 0.5rem;
+    box-shadow: 0 0 12px #0ff0fc66;
+    transition: all 0.2s ease;
 
     &:hover {
       background-color: #00e0ff;
+      box-shadow: 0 0 20px #0ff;
+      transform: scale(1.05);
     }
+  }
+
+  .button-row {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
   }
 }
 
-.leaderboard-popup {
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 2000;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.85);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  color: #0ff0fc;
 
-  .leaderboard-content {
-    background: #000;
-    padding: 2rem;
-    border-radius: 12px;
-    text-align: center;
-    box-shadow: 0 0 20px #0ff0fc66;
-
-    ul {
-      list-style: none;
-      padding: 0;
-      margin: 1rem 0;
-
-      li {
-        margin: 0.5rem 0;
-        font-size: 1.1rem;
-      }
-    }
-
-    button {
-      margin-top: 1rem;
-      background: #0ff0fc;
-      color: #000;
-      padding: 0.5rem 1.2rem;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-
-      &:hover {
-        background: #0df;
-        box-shadow: 0 0 12px #0ff;
-      }
-    }
-  }
-}
-
-/* ───────────────────────────────
-   ANIMATIONS
-─────────────────────────────── */
 @keyframes fadeIn {
   from {
     opacity: 0;

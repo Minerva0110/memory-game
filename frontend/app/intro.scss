@@ -1,47 +1,46 @@
 .star-background {
-  position: relative;
-  width: 100%;
-  height: 100vh;
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, #0a0a0a 0%, #000 100%);
   overflow: hidden;
-
-  background: radial-gradient(ellipse at center, #0f0f0f 0%, #000000 100%); 
   z-index: 0;
-
-  &::before {
-    content: '';
+  pointer-events: none;
+ 
+  .star {
     position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background-image: 
-    radial-gradient(white 1px, transparent 1px),           // classic stars
-    radial-gradient(#88f 1px, transparent 1px),            // bluish
-    radial-gradient(#c0f 1px, transparent 1px);   
-    background-repeat: repeat;
-    animation: moveStars 60s linear infinite;
+    width: 2px;
+    height: 2px;
+    border-radius: 50%;
+    background-color: white;
+    opacity: 0.6;
+    animation: floatStar 100s linear infinite;
+  }
+  @for $i from 1 through 200 {
+    .star:nth-child(#{$i}) {
+      top: #{random(100)}vh;
+      left: #{random(100)}vw;
+      background-color: #{nth(('white', '#0ff', '#88f', '#c0f'), random(4))};
+      opacity: #{random(50) / 100 + 0.3};
+      animation-delay: #{random(100)}s;
+      transform: scale(#{random(150) / 100});
+    }
+  }
+  
+}
 
-    z-index: -1;
-    opacity: 0.3;
-    pointer-events: none;
+@keyframes floatStar {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-200px);
   }
 }
 
 
-/* Makes stars float/move */
-@keyframes moveStars {
-  0% {
-    transform: translate(0, 0);
-  }
-  100% {
-    transform: translate(50%, 50%);
-  }
-}
-
-/* Intro styles (your existing setup) */
 .intro {
   position: relative;
-  z-index: 1;
+  z-index: 1000;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -69,6 +68,8 @@
   }
 
   button {
+    position: relative;
+    z-index: 2100;
     background-color: transparent;
     border: 2px solid #0ff0fc;
     color: #0ff0fc;
@@ -88,7 +89,6 @@
   }
 }
 
-/* Animations */
 @keyframes fadeIn {
   from {
     opacity: 0;

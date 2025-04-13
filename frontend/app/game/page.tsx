@@ -32,6 +32,9 @@ export default function GamePage() {
   const [showLeaderboard, setShowLeaderboard] = useState(false)
   const [leaderboardData, setLeaderboardData] = useState<Score[]>([])
 
+  const [namePromptOpen, setNamePromptOpen] = useState(false)
+  const [tempName, setTempName] = useState('')
+
   const isCompetitive = mode === 'keppni'
 
   useEffect(() => {
@@ -47,7 +50,7 @@ export default function GamePage() {
     }
     return () => clearInterval(interval)
   }, [timerActive, mode])
-  
+
   function fetchTiles() {
     fetch('http://localhost:8000/api/game-config?tiles=24')
       .then(res => res.json())
@@ -67,13 +70,21 @@ export default function GamePage() {
       })
   }
 
+  function sendScore(name: string) {
+    fetch('http://localhost:8000/api/score', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, time: seconds, moves }),
+    })
+      .then(res => res.json())
+      .then(data => console.log('Score saved:', data))
+      .catch(err => console.error('Failed to save score:', err))
+  }
+
   function handleClick(index: number) {
     if (tiles[index].isFlipped || tiles[index].isMatched || flipped.length === 2) return
+    if (!timerActive && (mode === 'keppni' || mode === 'aefing')) setTimerActive(true)
 
-    if (!timerActive && (mode === 'keppni' || mode === 'aefing')) {
-        setTimerActive(true)
-      }
-      
     const newTiles = [...tiles]
     newTiles[index].isFlipped = true
 
@@ -94,15 +105,14 @@ export default function GamePage() {
         setFlipped([])
 
         if (allMatched) {
-          setHasWon(true)
           setTimerActive(false)
-
-          if (isCompetitive && playerName) {
-            fetch('http://localhost:8000/api/score', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ name: playerName, time: seconds, moves }),
-            }).catch(err => console.error('Failed to submit score:', err))
+          if (isCompetitive && !playerName) {
+            setNamePromptOpen(true)
+          } else if (isCompetitive && playerName) {
+            sendScore(playerName)
+            setHasWon(true)
+          } else {
+            setHasWon(true)
           }
         }
       } else {
@@ -117,9 +127,11 @@ export default function GamePage() {
   }
 
   function openLeaderboard() {
+    console.log('Trying to open leaderboard...')
     fetch('http://localhost:8000/api/leaderboard')
       .then(res => res.json())
       .then(data => {
+        console.log('Leaderboard data:', data)
         setLeaderboardData(data)
         setShowLeaderboard(true)
       })
@@ -128,8 +140,13 @@ export default function GamePage() {
       })
   }
   
-
   return (
+    <>
+    <div className="star-background">
+      {[...Array(250)].map((_, i) => (
+        <div className="star" key={i}></div>
+      ))}
+    </div>
     <main>
       <nav className="mode-select">
         <button onClick={() => setMode('keppni')} className={mode === 'keppni' ? 'active' : ''}>
@@ -147,21 +164,14 @@ export default function GamePage() {
       </nav>
 
       {mode === 'keppni' && !timerActive && (
-    <p className="mode-info">
-      Viltu keppa? Þetta verður skráð í stigatöflu – tími til að einbeita sér!
-    </p>
-  )}
+        <p className="mode-info">Viltu keppa? Þetta verður skráð í stigatöflu svo núna er tími til að einbeita sér!</p>
+      )}
 
       <div className="game-container">
-      <div className="hud">
-         {(mode === 'keppni' || mode === 'aefing') && (
-             <p>Tími: {seconds} sek</p>
-              )}
-        {mode === 'keppni' && (
-            <p>Tilraunir: {moves}</p>
-             )}
-             </div>
-
+        <div className="hud">
+          {(mode === 'keppni' || mode === 'aefing') && <p>Tími: {seconds} sek</p>}
+          {mode === 'keppni' && <p>Tilraunir: {moves}</p>}
+        </div>
 
         <div className="board">
           {tiles.map((tile, i) => (
@@ -172,14 +182,7 @@ export default function GamePage() {
             >
               <div className="inner">
                 <div className="front">
-                  <Image
-                    src={tile.image}
-                    alt={`Tile ${i}`}
-                    width={80}
-                    height={80}
-                    style={{ objectFit: 'contain' }}
-                    priority
-                  />
+                  <Image src={tile.image} alt={`Tile ${i}`} width={80} height={80} style={{ objectFit: 'contain' }} priority />
                 </div>
                 <div className="back" />
               </div>
@@ -188,7 +191,44 @@ export default function GamePage() {
         </div>
       </div>
 
-      {hasWon && (
+      {namePromptOpen && (
+        <div className="win-message">
+          <h2>Vel gert!</h2>
+          <p>Viltu skrá nafnið þitt á stigatöfluna?</p>
+          <input
+            type="text"
+            placeholder="Nafn..."
+            value={tempName}
+            onChange={e => setTempName(e.target.value)}
+            style={{ padding: '0.5rem', fontSize: '1rem', margin: '1rem 0', borderRadius: '6px' }}
+          />
+          <div style={{ display: 'flex', gap: '1rem' }}>
+            <button
+              onClick={() => {
+                if (tempName.trim()) {
+                  localStorage.setItem('playerName', tempName)
+                  setPlayerName(tempName)
+                  sendScore(tempName)
+                  setNamePromptOpen(false)
+                  setHasWon(true)
+                }
+              }}
+            >
+              Skrá mig
+            </button>
+            <button
+              onClick={() => {
+                setNamePromptOpen(false)
+                setHasWon(true)
+              }}
+            >
+              Hætta við
+            </button>
+          </div>
+        </div>
+      )}
+
+      {hasWon && !namePromptOpen && (
         <div className="win-message">
           <h2>Vel gert!</h2>
           <p>Viltu reyna aftur?</p>
@@ -196,27 +236,29 @@ export default function GamePage() {
         </div>
       )}
 
-{showLeaderboard && (
-  <div className="leaderboard-popup">
-    <div className="leaderboard-content">
-      <h2>Stigatafla</h2>
-      {leaderboardData.length > 0 ? (
-  <ul>
-    {leaderboardData.map((score, index) => (
-      <li key={score.id}>
-        #{index + 1} – <strong>{score.name}</strong>: {score.moves} tilraunir – {score.time} sek
-      </li>
-    ))}
-  </ul>
-) : (
-  <p>Engin stig skráð — vertu fyrstur á listanum! </p>
-)}
-
-      <button onClick={() => setShowLeaderboard(false)}>Loka</button>
+      
+  {showLeaderboard && (
+    <div className="leaderboard-popup">
+      <div className="leaderboard-content">
+        <h2>Stigatafla</h2>
+        {leaderboardData.length > 0 ? (
+          <ul>
+            {leaderboardData.map((score, index) => (
+              <li key={score.id}>
+                #{index + 1} – <strong>{score.name}</strong>: {score.moves} tilraunir – {score.time} sek
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p>Engin stig skráð — vertu fyrstur á listanum!</p>
+        )}
+        <button onClick={() => setShowLeaderboard(false)}>Loka</button>
+      </div>
     </div>
-  </div>
-)}
+  )}
+</main>
+<div className="watermark">Vefforritun 2</div>
 
-    </main>
+    </>
   )
 }
