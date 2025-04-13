@@ -2,6 +2,8 @@ import express from 'express'
 import cors from 'cors'
 import gameRouter from './routes/game'
 import { PrismaClient } from '@prisma/client'
+import leaderboardRoutes from './routes/leaderboard'
+
 
 const app = express()
 const PORT = 8000
@@ -11,6 +13,7 @@ app.use(cors())
 app.use(express.json())
 
 app.use('/api', gameRouter)
+app.use('/api', leaderboardRoutes)
 
 app.post('/api/score', async (req, res) => {
     const { name, time, moves } = req.body

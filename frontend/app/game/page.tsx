@@ -11,6 +11,15 @@ type Tile = {
   isMatched: boolean
 }
 
+type Mode = 'keppni' | 'aefing' | 'fraels'
+
+type Score = {
+  id: string
+  name: string
+  time: number
+  moves: number
+}
+
 export default function GamePage() {
   const [tiles, setTiles] = useState<Tile[]>([])
   const [flipped, setFlipped] = useState<number[]>([])
@@ -18,26 +27,27 @@ export default function GamePage() {
   const [moves, setMoves] = useState(0)
   const [seconds, setSeconds] = useState(0)
   const [timerActive, setTimerActive] = useState(false)
+  const [mode, setMode] = useState<Mode>('fraels')
+  const [playerName, setPlayerName] = useState('')
+  const [showLeaderboard, setShowLeaderboard] = useState(false)
+  const [leaderboardData, setLeaderboardData] = useState<Score[]>([])
 
-  // Mode toggles
-  const [showTimer, setShowTimer] = useState(false)
-  const [showMoves, setShowMoves] = useState(false)
-  const [freeMode, setFreeMode] = useState(true)
+  const isCompetitive = mode === 'keppni'
 
   useEffect(() => {
+    const name = localStorage.getItem('playerName')
+    if (name) setPlayerName(name)
     fetchTiles()
   }, [])
 
   useEffect(() => {
-    let interval: NodeJS.Timeout | undefined
-
-    if (showTimer && timerActive) {
+    let interval: NodeJS.Timeout
+    if ((mode === 'keppni' || mode === 'aefing') && timerActive) {
       interval = setInterval(() => setSeconds(prev => prev + 1), 1000)
     }
-
     return () => clearInterval(interval)
-  }, [timerActive, showTimer])
-
+  }, [timerActive, mode])
+  
   function fetchTiles() {
     fetch('http://localhost:8000/api/game-config?tiles=24')
       .then(res => res.json())
@@ -60,10 +70,10 @@ export default function GamePage() {
   function handleClick(index: number) {
     if (tiles[index].isFlipped || tiles[index].isMatched || flipped.length === 2) return
 
-    if (!timerActive && showTimer) {
-      setTimerActive(true)
-    }
-
+    if (!timerActive && (mode === 'keppni' || mode === 'aefing')) {
+        setTimerActive(true)
+      }
+      
     const newTiles = [...tiles]
     newTiles[index].isFlipped = true
 
@@ -72,7 +82,7 @@ export default function GamePage() {
     setFlipped(newFlipped)
 
     if (newFlipped.length === 2) {
-      if (showMoves) setMoves(prev => prev + 1)
+      if (isCompetitive) setMoves(prev => prev + 1)
 
       const [first, second] = newFlipped
       if (newTiles[first].image === newTiles[second].image) {
@@ -86,6 +96,14 @@ export default function GamePage() {
         if (allMatched) {
           setHasWon(true)
           setTimerActive(false)
+
+          if (isCompetitive && playerName) {
+            fetch('http://localhost:8000/api/score', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ name: playerName, time: seconds, moves }),
+            }).catch(err => console.error('Failed to submit score:', err))
+          }
         }
       } else {
         setTimeout(() => {
@@ -98,46 +116,50 @@ export default function GamePage() {
     }
   }
 
+  function openLeaderboard() {
+    fetch('http://localhost:8000/api/leaderboard')
+      .then(res => res.json())
+      .then(data => {
+        setLeaderboardData(data)
+        setShowLeaderboard(true)
+      })
+      .catch(err => {
+        console.error('Failed to load leaderboard:', err)
+      })
+  }
+  
+
   return (
     <main>
       <nav className="mode-select">
-        <button
-          onClick={() => {
-            setShowTimer(prev => !prev)
-            setFreeMode(false)
-          }}
-          className={showTimer ? 'active' : ''}
-        >
-          Tími
+        <button onClick={() => setMode('keppni')} className={mode === 'keppni' ? 'active' : ''}>
+          🏆 Keppni
         </button>
-
-        <button
-          onClick={() => {
-            setShowMoves(prev => !prev)
-            setFreeMode(false)
-          }}
-          className={showMoves ? 'active' : ''}
-        >
-          Tilraunir
+        <button onClick={() => setMode('aefing')} className={mode === 'aefing' ? 'active' : ''}>
+          🧪 Æfing
         </button>
-
-        <button
-          onClick={() => {
-            setShowTimer(false)
-            setShowMoves(false)
-            setFreeMode(true)
-          }}
-          className={freeMode ? 'active' : ''}
-        >
-          Spila án pressu
+        <button onClick={() => setMode('fraels')} className={mode === 'fraels' ? 'active' : ''}>
+          🌙 Spila án pressu
+        </button>
+        <button className="leaderboard-button" onClick={openLeaderboard}>
+          📈 Stigatafla
         </button>
       </nav>
 
+      {mode === 'keppni' && (
+        <p className="mode-info">Þessi mód verður skráð í stigatöflu – tími til að einbeita sér!</p>
+      )}
+
       <div className="game-container">
-        <div className="hud">
-          {showMoves && <p>Tilraunir: {moves}</p>}
-          {showTimer && <p>Tími: {seconds} sek</p>}
-        </div>
+      <div className="hud">
+         {(mode === 'keppni' || mode === 'aefing') && (
+             <p>Tími: {seconds} sek</p>
+              )}
+        {mode === 'keppni' && (
+            <p>Tilraunir: {moves}</p>
+             )}
+             </div>
+
 
         <div className="board">
           {tiles.map((tile, i) => (
@@ -171,6 +193,28 @@ export default function GamePage() {
           <button onClick={fetchTiles}>Spila aftur</button>
         </div>
       )}
+
+{showLeaderboard && (
+  <div className="leaderboard-popup">
+    <div className="leaderboard-content">
+      <h2>Stigatafla</h2>
+      {leaderboardData.length > 0 ? (
+  <ul>
+    {leaderboardData.map((score, index) => (
+      <li key={score.id}>
+        #{index + 1} – <strong>{score.name}</strong>: {score.moves} tilraunir – {score.time} sek
+      </li>
+    ))}
+  </ul>
+) : (
+  <p>Engin stig skráð enn — vertu(ðu) fyrst(ur) á listanum! 🎯</p>
+)}
+
+      <button onClick={() => setShowLeaderboard(false)}>Loka</button>
+    </div>
+  </div>
+)}
+
     </main>
   )
 }
