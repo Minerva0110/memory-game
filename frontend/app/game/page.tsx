@@ -67,6 +67,10 @@ export default function GamePage() {
         setSeconds(0)
         setTimerActive(false)
         setFlipped([])
+
+        if (mode === 'keppni') {
+          setMode('keppni')
+        }
       })
   }
 
