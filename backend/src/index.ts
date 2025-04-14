@@ -5,7 +5,6 @@ import leaderboardRoutes from './routes/leaderboard'
 import scoreRoutes from './routes/score'
 
 const app = express()
-const PORT = 8000
 
 app.use(cors())
 app.use(express.json())
@@ -21,6 +20,8 @@ app.get('/', (_req, res) => {
     </h1>
   `)
 })
+
+const PORT = process.env.PORT || 8000
 
 app.listen(PORT, () => {
   console.log(`Backend running at http://localhost:${PORT}`)

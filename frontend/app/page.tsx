@@ -9,14 +9,12 @@ export default function IntroPage() {
 
   return (
     <>
-      {/* Star background lives outside */}
       <div className="star-background">
         {[...Array(200)].map((_, i) => (
           <div className="star" key={i}></div>
         ))}
       </div>
 
-      {/* Main intro content stays separate */}
       <main className="intro">
         <h1>Minni­sleikurinn: SCI-FI Edition</h1>
         <p>

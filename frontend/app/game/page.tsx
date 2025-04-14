@@ -52,7 +52,7 @@ export default function GamePage() {
   }, [timerActive, mode])
 
   function fetchTiles() {
-    fetch('http://localhost:8000/api/game-config?tiles=24')
+    fetch('https://memory-backend-9t90.onrender.com/api/game-config?tiles=24')
       .then(res => res.json())
       .then(data => {
         const loadedTiles: Tile[] = data.tiles.map((img: string, index: number) => ({
@@ -71,11 +71,11 @@ export default function GamePage() {
   }
 
   function sendScore(name: string) {
-    fetch('http://localhost:8000/api/score', {
+    fetch('https://memory-backend-9t90.onrender.com/api/score', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name, time: seconds, moves }),
-    })
+    })    
       .then(res => res.json())
       .then(data => console.log('Score saved:', data))
       .catch(err => console.error('Failed to save score:', err))
@@ -128,7 +128,7 @@ export default function GamePage() {
 
   function openLeaderboard() {
     console.log('Trying to open leaderboard...')
-    fetch('http://localhost:8000/api/leaderboard')
+    fetch('https://memory-backend-9t90.onrender.com/api/leaderboard')
       .then(res => res.json())
       .then(data => {
         console.log('Leaderboard data:', data)
