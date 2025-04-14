@@ -60,7 +60,7 @@ Veldu leikham:
 | Prisma ORM       | Gagnagrunnstengingar og módel            |
 | Sass (SCSS)      | Sérsniðin útlit og stílar                |
 | Vercel           | Hýsing á framenda                        |
-
+| Render	       | Hýsing á bakenda                         |
 ---
 
 ##  Sérkenni
@@ -74,13 +74,19 @@ Veldu leikham:
 
 ## 🌍 Hýsing
 
-### Hýsing á Vercel:
+### Framendi: Hýsing á Vercel:
 
-Verkefnið er hýst með Vercel:
+Framendi verkefnisins er hýst með Vercel:
 
 [Deploy on Vercel](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme)
 
-### Backend + Gagnagrunnur:
+### Backend 
+Bakendi – Render:
+Express.js bakendinn er hýstur með Render:
+
+🔗 https://memory-backend-xxxx.onrender.com
+
+### Gagnagrunnur:
 
 Gagnagrunnurinn er vistaður á [Neon.tech](https://neon.tech) með PostgreSQL.
 
