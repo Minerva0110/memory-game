@@ -2,7 +2,11 @@
 
 Þetta er [Next.js](https://nextjs.org) verkefni sem var sett upp með [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app) og útvíkkað með Express.js, PostgreSQL og Prisma.
 
-## Byrjaðu strax
+## PS !!!
+
+Þar sem ég er að nota ókeypis útgáfu af Render, getur tekið u.þ.b *eina mínútu* að hlaða gögnunum inn á vefinn.
+
+## Til að byrja
 
 **1. Klónaðu verkefnið:**
 
